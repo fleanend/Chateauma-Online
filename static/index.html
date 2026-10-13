@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Châteauma</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<h1>Châteauma</h1>
+<div id="app"></div>
+<dialog id="help-dialog" class="modal help-dialog" aria-labelledby="help-title">
+  <div class="modal-header">
+    <h2 id="help-title">Châteauma Help Sheet</h2>
+    <button class="icon-button" type="button" data-close-dialog="help-dialog" aria-label="Close help sheet">×</button>
+  </div>
+  <div class="modal-body help-sheet">
+    <section>
+      <h3>Choosing and Placing a Hex Tile <span>(page 24)</span></h3>
+      <p>Roll the Châteauma’s die and place it in a colorful slot above the selected county card. Then take and place a tile matching an empty space’s color (top-most first) on a selected county card, from (first possible):</p>
+      <ul>
+        <li><strong>Game board:</strong> starting from the depot matching the Châteauma’s die (then clockwise).</li>
+        <li><strong>Reserve:</strong> starting with a matching hex tile then wild one.</li>
+        <li><strong>Black depot:</strong> starting from the top-most row, <strong>take the left-most hex tile</strong> and place it face down in the reserve as wild.</li>
+        <li>Otherwise, <strong>gain 2 silver coins.</strong></li>
+      </ul>
+    </section>
+    <section>
+      <h3>Tile Placement Bonuses <span>(page 24)</span></h3>
+      <p>After the Châteauma places a hex tile on the county card, resolve the placement bonus.</p>
+      <p class="note"><strong>Note:</strong> If the placement bonus is impossible to resolve, the Châteauma skips it.</p>
+      <ul>
+        <li><strong>Castle:</strong> take an additional choosing and placing a Hex tile action.</li>
+        <li><strong>Bank:</strong> 2 silver coins.</li>
+        <li><strong>Boarding House:</strong> score 2 VP.</li>
+        <li><strong>Workshop:</strong> take a building tile and place it into the reserve.</li>
+        <li><strong>Church:</strong> take a castle/monastery/mine tile and place it into the reserve.</li>
+        <li><strong>City Hall:</strong> place a tile from the reserve.</li>
+        <li><strong>Market:</strong> take a livestock/ship tile and place it into the reserve.</li>
+        <li><strong>Warehouse:</strong> sell goods.</li>
+        <li><strong>Watchtower:</strong> score 4 VP.</li>
+        <li><strong>Animals:</strong> score VP based on <em>all previously taken</em> livestock tiles of a matching type (not in the reserve).</li>
+        <li><strong>Ship:</strong> take goods from the depot with the most goods, then move on the turn order track.</li>
+      </ul>
+      <p class="note"><strong>Note:</strong> In relevant cases above, the white die determines depots to choose from (then clockwise).</p>
+    </section>
+    <section>
+      <h3>County Card Placement Bonus: Sell Goods <span>(page 25)</span></h3>
+      <ul>
+        <li>Sell the type it has most of (left-most if tied) and then it gains exactly 1 silver coin, and scores VP based on player count for each tile sold.</li>
+        <li>If the Châteauma has no goods to sell, it scores 2 VP instead.</li>
+      </ul>
+      <p><strong>County card completion:</strong> if the Châteauma completed any county card, move all hex tiles from this county card to its duchy board. Move county cards to the left and draw a new one.</p>
+      <p><strong>Claiming bonus tiles:</strong> if the Châteauma has covered all spaces of one type on its duchy board, it takes a corresponding bonus tile.</p>
+      <p><strong>Black Depot Purchase:</strong> if the Châteauma has at least 2 silver coins, it purchases a hex tile from the black depot for 2 silver coins and places it in the reserve. First, it looks for a hex tile that it has the least of in its reserve (in case of a tie, the left-most one).</p>
+    </section>
+    <section>
+      <h3>Châteauma Endgame Scoring <span>(page 25)</span></h3>
+      <ul>
+        <li><strong>4 VP</strong> for each monastery tile (face up in its duchy, county cards, not in reserve).</li>
+        <li><strong>1 VP</strong> for each unsold goods tile.</li>
+        <li><strong>1 VP</strong> for each silver coin.</li>
+        <li><strong>1 VP</strong> for each tile left in the reserve.</li>
+        <li><strong>2 VP</strong> for each tile on incomplete county cards.</li>
+      </ul>
+    </section>
+    <section>
+      <h3>Difficulty Modifier D – Placement Bonus: Extra Turn <span>(page 26)</span></h3>
+      <ul>
+        <li>Take another choose a hex tile action, using the white die value instead of the Châteauma’s die value, on the remaining county card.</li>
+        <li>If it cannot place, take the sell goods action instead.</li>
+      </ul>
+    </section>
+    <section>
+      <h3>Other Expansions <span>(page 26)</span></h3>
+      <ul>
+        <li><strong>Monasteries #27 #28 #29:</strong> ignore effect.</li>
+        <li><strong>Crane:</strong> take an additional choosing and placing a hex tile action.</li>
+        <li><strong>Geese:</strong> when placing, score as if this tile matches whichever livestock the Châteauma has most of. On future placement of other livestock tiles, treat it as if it matches all livestock tiles.</li>
+        <li><strong>White Castles:</strong> it takes a tile from the board and places it in its reserve. The Châteauma uses the value on the white die to determine the starting depot. It then takes the tile of a type it doesn’t have in its reserve, prioritizing the left-most type if tied. If there are no tiles remaining, it takes 1 silver.</li>
+        <li><strong>Inns:</strong> not supported.</li>
+        <li><strong>Trade Routes:</strong> the Châteauma ignores trade routes; instead, it scores +1 VP when selling goods.</li>
+        <li><strong>Shields:</strong>
+          <ul>
+            <li>If a completed county card has a shield symbol, the Châteauma takes a shield from a depot (starting with the one matching the white die value) and places it face down next to its duchy board.</li>
+            <li><strong>Scoring Shields:</strong> 1 = 8 VP; 2 = 15 VP; 3 = 25 VP; 4+ = 40 VP.</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+  </div>
+  <div class="modal-footer">
+    <button class="secondary" type="button" data-close-dialog="help-dialog">Close</button>
+  </div>
+</dialog>
+<dialog id="reset-dialog" class="modal confirm-dialog" aria-labelledby="reset-title">
+  <div class="modal-header">
+    <h2 id="reset-title">Start over?</h2>
+  </div>
+  <div class="modal-body">
+    <p>This will clear the selected board and all placed markers. You’ll return to the board selection screen.</p>
+  </div>
+  <div class="modal-footer confirm-actions">
+    <button class="secondary" type="button" data-close-dialog="reset-dialog">Cancel</button>
+    <button id="confirm-reset" class="danger" type="button">Start over</button>
+  </div>
+</dialog>
+<script>
+const app = document.getElementById("app");
+const helpDialog = document.getElementById("help-dialog");
+const resetDialog = document.getElementById("reset-dialog");
+const confirmReset = document.getElementById("confirm-reset");
+let state = { board: null, clicks: [], difficulty: null };
+async function api(path, body) {
+  const r = await fetch("/api/" + path, body === undefined ? {} : {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const s = await r.json();
+  if (path === "board" || path === "click") {
+    s.difficulty = state.difficulty;
+    if (path === "click") s.board = state.board;
+    return { ...state, ...s };
+  }
+  return s;
+}
+function render() {
+  app.innerHTML = "";
+
+  if (state.board && !state.gameStarted) {
+    return renderGameStart();
+  }
+
+  if (state.board) {
+    return renderBoard();
+  }
+
+  if (!state.difficulty) {
+    return renderDifficulty();
+  }
+
+  renderQuestion();
+}
+
+function renderGameStart() {
+  app.innerHTML = `
+    <div class="game-start-screen">
+
+      <h2>Ready to Begin</h2>
+
+      <div class="game-start-card">
+
+        <div class="game-start-icon">🎲</div>
+
+        <p>
+          Your game is ready.
+        </p>
+
+        <p>
+          Before starting, take <strong>one colored die</strong>
+          and set it aside for the Châteauma.
+        </p>
+
+        <p class="game-start-note">
+          Only one colored die is required.
+        </p>
+
+        <button id="start-game">
+          Start Game
+        </button>
+
+      </div>
+
+    </div>
+  `;
+
+  document.getElementById("start-game").onclick = () => {
+    state.gameStarted = true;
+    render();
+  };
+}
+
+function renderDifficulty() {
+  app.innerHTML = `<h2>Choose difficulty level:</h2>
+    <button data-d="Gateway">Gateway (No Modifiers)</button>
+    <button data-d="Intermediate">Intermediate (1 Modifier)</button>
+    <button data-d="Advanced">Advanced (2+ Modifiers)</button>`;
+  app.querySelectorAll("button").forEach((btn) => btn.onclick = async () => {
+    state.difficulty = btn.dataset.d;
+    if (state.difficulty === "Gateway") {
+      state = await api("board", { board: "standard", firstPlayer: "player", modifier: null, difficulty: state.difficulty });
+    }
+    render();
+  });
+}
+function renderQuestion() {
+  if (state.difficulty === "Intermediate") {
+    app.innerHTML = `<h2>Which modifier would you like to use?</h2>
+      <button data-m="A">A: Use Duchy board 36 place 5 black depot tiles on A spaces (the Châteauma requires less tiles to claim the bonus)</button>
+      <button data-m="B">B: Use Duchy board 36 place 5 normal tiles on B spaces (the Châteauma requires less tiles to claim the bonus and the mine generates 1 silver)</button>
+      <button data-m="C">C: The Châteauma is the first player</button>
+      <button data-m="D">D: We'll see when we get there.</button>`;
+    app.querySelectorAll("button").forEach((btn) => {
+      btn.onclick = async () => {
+        let board;
+        let firstPlayer;
+        if (btn.dataset.m === "C") {
+          board = "standard";
+          firstPlayer = "chateauma";
+        }
+        else {
+          board = "advanced";
+          firstPlayer = "player";
+        }
+        state = await api("board", { board: board, firstPlayer: firstPlayer, modifier: btn.dataset.m, difficulty: state.difficulty });
+        render();
+      };
+    });
+    return;
+  }
+  if (state.difficulty === "Advanced") {
+    const selectedModifiers = new Set();
+    app.innerHTML = `
+      <h2>Choose your modifiers</h2>
+      <p>Select at least 2 modifiers.</p>
+      <button data-m="A">
+        A: Use Duchy board 36 place 5 black depot tiles on A spaces
+      </button>
+      <button data-m="B">
+        B: Use Duchy board 36 place 5 normal tiles on B spaces
+      </button>
+      <button data-m="C">
+        C: The Châteauma is the first player
+      </button>
+      <button data-m="D">
+        D: We'll see when we get there.
+      </button>
+      <br><br>
+      <button id="confirmModifiers" disabled>
+        Continue
+      </button>
+    `;
+    const modifierButtons = app.querySelectorAll("button[data-m]");
+    const confirmButton = app.querySelector("#confirmModifiers");
+    modifierButtons.forEach((btn) => {
+      btn.onclick = () => {
+        const modifier = btn.dataset.m;
+        if (selectedModifiers.has(modifier)) {
+          selectedModifiers.delete(modifier);
+          btn.classList.remove("selected");
+        } else {
+          selectedModifiers.add(modifier);
+          btn.classList.add("selected");
+        }
+        btn.setAttribute("aria-pressed", String(selectedModifiers.has(modifier)));
+        confirmButton.disabled = selectedModifiers.size < 2;
+      };
+    });
+    confirmButton.onclick = async () => {
+      if (selectedModifiers.size < 2) return;
+      state = await api("board", {
+        board: "advanced",
+        firstPlayer: selectedModifiers.has("C") ? "chateauma" : "player",
+        modifier: Array.from(selectedModifiers).join(","),
+        difficulty: state.difficulty
+      });
+      render();
+    };
+    return;
+  }
+}
+
+function renderCards(wrap) {
+  const cards = state.cards || [];
+
+  const cardContainer = document.createElement("div");
+  cardContainer.className = "card-container";
+  cardContainer.style.top = "91%";
+
+  cards.forEach((cardPoint, index) => {
+    const [card, points] = cardPoint;
+    // Wrapper for one card + its point badge
+    const cardSlot = document.createElement("div");
+    cardSlot.className = "card-slot";
+    cardSlot.style.left = 3.5 + index * 31.5 + "%";
+    cardSlot.style.width = "30%";
+
+    // Card image
+    const cardImg = document.createElement("img");
+    cardImg.className = "card";
+    cardImg.src = `/static/cards/${card}.png`;
+    cardImg.alt = `County Card ${index + 1}`;
+    cardImg.draggable = false;
+    cardImg.ondragstart = () => false;
+
+    // Points badge wrapper
+    const pointsBadge = document.createElement("div");
+    pointsBadge.className = "points-badge";
+
+    // Badge image
+    const pointImg = document.createElement("img");
+    pointImg.className = "points";
+    pointImg.src = `/static/cards/points.png`;
+    pointImg.alt = "";
+    pointImg.draggable = false;
+    pointImg.ondragstart = () => false;
+
+    // Number printed over badge
+    const pointText = document.createElement("div");
+    pointText.className = "points-text";
+    pointText.textContent = points;
+
+    pointsBadge.append(pointImg, pointText);
+    cardSlot.append(cardImg, pointsBadge);
+    cardContainer.appendChild(cardSlot);
+  });
+
+  wrap.appendChild(cardContainer);
+}
+
+function renderBoard() {
+  const wrap = document.createElement("div");
+  wrap.id = "wrap";
+  const img = document.createElement("img");
+  img.id = "board";
+  img.alt = state.board + " board";
+  img.src = `/static/boards/${state.board}.png`;
+  img.draggable = false;
+  img.ondragstart = () => false;
+  wrap.appendChild(img);
+  state.clicks.forEach((c) => addMarker(wrap, c));
+  addNumber(wrap, state.silver, "silver");
+  state.goods.forEach((g, i) => addNumber(wrap, g, "goods", i));
+  img.onclick = async (e) => {
+    const rect = img.getBoundingClientRect();
+    // store as fractions so it works at any display size
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    state = await api("click", { x, y });
+    render();
+  };
+  const options = document.createElement("div");
+  options.className = "options-container";
+  const optionsButton = document.createElement("button");
+  optionsButton.type = "button";
+  optionsButton.className = "secondary options-button";
+  optionsButton.setAttribute("aria-haspopup", "menu");
+  optionsButton.setAttribute("aria-expanded", "false");
+  optionsButton.textContent = "Options";
+  const menu = document.createElement("div");
+  menu.className = "options-menu";
+  menu.setAttribute("role", "menu");
+  menu.hidden = true;
+  menu.innerHTML = `
+    <button type="button" role="menuitem" data-action="help">Help Sheet</button>
+    <div class="menu-separator" role="separator"></div>
+    <button type="button" role="menuitem" data-action="reset" class="menu-danger">Start Over</button>`;
+  function closeMenu() {
+    menu.hidden = true;
+    optionsButton.setAttribute("aria-expanded", "false");
+  }
+  optionsButton.onclick = (e) => {
+    e.stopPropagation();
+    const willOpen = menu.hidden;
+    menu.hidden = !willOpen;
+    optionsButton.setAttribute("aria-expanded", String(willOpen));
+    if (willOpen) menu.querySelector("button")?.focus();
+  };
+  menu.addEventListener("click", (e) => e.stopPropagation());
+  menu.querySelector('[data-action="help"]').onclick = () => {
+    closeMenu();
+    helpDialog.showModal();
+  };
+  menu.querySelector('[data-action="reset"]').onclick = () => {
+    closeMenu();
+    resetDialog.showModal();
+  };
+  options.append(optionsButton, menu);
+  app.append(wrap, options);
+  wrap.appendChild(options);
+  options.style.position = "absolute";
+  options.style.right = "13%";
+  options.style.bottom = "5%";
+  options.style.margin = "0";
+  options.style.zIndex = "20";
+  document.addEventListener("click", closeMenu, { once: true });
+  renderCards(wrap);
+}
+
+
+function addMarker(wrap, c) {
+  const m = document.createElement("div");
+  m.className = "marker";
+  m.style.left = c.x * 100 + "%";
+  m.style.top = c.y * 100 + "%";
+  wrap.appendChild(m);
+}
+function addNumber(wrap, n, type, index) {  const m = document.createElement("img");
+  m.className = "number";
+  m.src = `/static/numbers/number_${n}.png`;
+  m.draggable = false;
+  m.ondragstart = () => false;
+  if (type === "silver") {
+    m.alt = `${n} silver coins`;
+    m.style.left = "21%";
+    m.style.top = "11%";
+  } else if (type === "goods") {
+    m.alt = `${n} goods of type ${index + 1}`;
+    m.style.left = 32.5 + index * 10.1 + "%";
+    m.style.top = "7%";
+    m.style.width = "3%";
+  }
+  wrap.appendChild(m);
+}
+// Close modal buttons use the native <dialog> element, which gives us focus trapping,
+// Escape-key handling and proper modal semantics without a custom overlay implementation.
+document.querySelectorAll("[data-close-dialog]").forEach((button) => {
+  button.addEventListener("click", () => {
+    document.getElementById(button.dataset.closeDialog)?.close();
+  });
+});
+confirmReset.onclick = async () => {
+  confirmReset.disabled = true;
+  try {
+    state = await api("reset", {});
+    resetDialog.close();
+    render();
+  } finally {
+    confirmReset.disabled = false;
+  }
+};
+// Clicking the backdrop outside a dialog closes Help, but intentionally does not
+// confirm or dismiss Start Over accidentally.
+helpDialog.addEventListener("click", (e) => {
+  if (e.target === helpDialog) helpDialog.close();
+});
+api("state").then((s) => { state = s; render(); });
+</script>
+</body>
+</html>

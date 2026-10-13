@@ -1,0 +1,606 @@
+:root {
+  --bg: #f4efe6;
+  --surface: #fffdf8;
+  --text: #2b2620;
+  --muted: #7a6f60;
+  --accent: #8a3b2a;
+  --accent-hover: #a34832;
+  --border: #d9cfbf;
+  --marker: #c62828;
+  --danger: #a52d24;
+  --danger-hover: #bd382d;
+  --radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1915;
+    --surface: #26221c;
+    --text: #ece5d8;
+    --muted: #a09482;
+    --accent: #d08a5b;
+    --accent-hover: #e0a074;
+    --border: #3d372e;
+    --marker: #ff5252;
+    --danger: #c74d44;
+    --danger-hover: #dd6258;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 2rem 1rem 4rem;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+h1 {
+  margin: 0 0 1.5rem;
+  text-align: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 2.2rem;
+  letter-spacing: .04em;
+}
+
+#app {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Setup questions */
+#app > h2 {
+  margin: 2rem 0 1.25rem;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+#app button:not(.secondary):not([role="menuitem"]) {
+  display: block;
+  width: min(100%, 360px);
+  margin: 0 auto .75rem;
+  padding: 1rem 1.5rem;
+  font-size: 1.05rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition:
+    border-color .15s,
+    transform .15s,
+    box-shadow .15s;
+}
+
+#app button:not(.secondary):not([role="menuitem"]):hover,
+#app button:not(.secondary):not([role="menuitem"]):focus-visible {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+  outline: none;
+}
+
+#app button[data-m][aria-pressed="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* Board */
+#wrap {
+  position: relative;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: visible;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .18);
+  background: var(--surface);
+}
+
+#board {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  min-height: 200px;
+  cursor: crosshair;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+.marker {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+
+  border-radius: 50%;
+  background: var(--marker);
+  border: 2px solid #fff;
+
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .5);
+
+  pointer-events: none;
+}
+
+/* Numbers placed over board */
+.number {
+  position: absolute;
+  width: 10%;
+  height: auto;
+
+  transform: translate(-50%, -50%);
+
+  z-index: 10;
+  pointer-events: none;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Shared secondary button */
+button.secondary {
+  padding: .55rem 1.1rem;
+  font-size: .95rem;
+
+  color: var(--muted);
+  background: transparent;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+
+  cursor: pointer;
+
+  transition:
+    color .15s,
+    border-color .15s,
+    background .15s;
+}
+
+button.secondary:hover,
+button.secondary:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+  outline: none;
+}
+
+/* Options launcher */
+.options-container {
+  position: relative;
+  width: fit-content;
+  margin: 1.25rem auto 0;
+}
+
+.options-button {
+  color: #000;
+  font-weight: bold;
+
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.options-button:hover,
+.options-button:focus-visible {
+  color: var(--accent);
+  border: none;
+}
+
+button.secondary.options-button {
+  color: #000;
+  font-weight: bold;
+
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+button.secondary.options-button:hover,
+button.secondary.options-button:focus-visible {
+  color: var(--accent);
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+/* Windows-style options popup */
+.options-menu {
+  position: absolute;
+
+  left: 50%;
+  bottom: calc(100% + .55rem);
+
+  transform: translateX(-50%);
+
+  width: 220px;
+  padding: .4rem;
+
+  background: color-mix(
+    in srgb,
+    var(--surface) 96%,
+    transparent
+  );
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .24);
+
+  backdrop-filter: blur(12px);
+
+  z-index: 20;
+}
+
+.options-menu[hidden] {
+  display: none;
+}
+
+.options-menu button {
+  display: block;
+
+  width: 100%;
+  padding: .72rem .8rem;
+
+  color: var(--text);
+  background: transparent;
+
+  border: 0;
+  border-radius: 8px;
+
+  font: inherit;
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.options-menu button:hover,
+.options-menu button:focus-visible {
+  background: color-mix(
+    in srgb,
+    var(--accent) 12%,
+    transparent
+  );
+
+  outline: none;
+}
+
+.options-menu .menu-danger {
+  color: var(--danger);
+}
+
+.menu-separator {
+  height: 1px;
+  margin: .35rem .25rem;
+
+  background: var(--border);
+}
+
+/* Native modal dialogs */
+.modal {
+  width: min(92vw, 760px);
+  max-height: min(88vh, 900px);
+
+  padding: 0;
+
+  color: var(--text);
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: 14px;
+
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .35);
+
+  overflow: hidden;
+}
+
+.modal::backdrop {
+  background: rgba(20, 16, 12, .58);
+  backdrop-filter: blur(2px);
+}
+
+.modal-header,
+.modal-footer {
+  display: flex;
+  align-items: center;
+
+  gap: 1rem;
+
+  padding: 1rem 1.2rem;
+
+  background: var(--surface);
+}
+
+.modal-header {
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-footer {
+  justify-content: flex-end;
+  border-top: 1px solid var(--border);
+}
+
+.modal-header h2 {
+  margin: 0;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.45rem;
+}
+
+/* Scrollable modal content */
+.modal-body {
+  padding: 1.15rem 1.35rem;
+
+  overflow-y: auto;
+
+  max-height: 65vh;
+}
+
+.icon-button {
+  width: 2.25rem;
+  height: 2.25rem;
+
+  display: grid;
+  place-items: center;
+
+  padding: 0;
+
+  color: var(--muted);
+  background: transparent;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  font-size: 1.5rem;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.icon-button:hover,
+.icon-button:focus-visible {
+  color: var(--text);
+
+  background: var(--bg);
+  border-color: var(--border);
+
+  outline: none;
+}
+
+/* Help sheet */
+.help-sheet section + section {
+  margin-top: 1.7rem;
+  padding-top: 1.45rem;
+
+  border-top: 1px solid var(--border);
+}
+
+.help-sheet h3 {
+  margin: 0 0 .65rem;
+
+  color: var(--accent);
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+
+.help-sheet h3 span {
+  color: var(--muted);
+
+  font-size: .86em;
+
+  white-space: nowrap;
+}
+
+.help-sheet p {
+  margin: .55rem 0;
+}
+
+.help-sheet ul {
+  margin: .55rem 0;
+  padding-left: 1.35rem;
+}
+
+.help-sheet li + li {
+  margin-top: .3rem;
+}
+
+.help-sheet .note {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Confirmation dialog */
+.confirm-dialog {
+  width: min(92vw, 470px);
+}
+
+.confirm-dialog .modal-body {
+  max-height: none;
+}
+
+.confirm-dialog .modal-body p {
+  margin: 0;
+}
+
+.confirm-actions {
+  justify-content: flex-end;
+}
+
+button.danger {
+  padding: .58rem 1.05rem;
+
+  color: #fff;
+  background: var(--danger);
+
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+
+  font: inherit;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background .15s,
+    border-color .15s;
+}
+
+button.danger:hover,
+button.danger:focus-visible {
+  background: var(--danger-hover);
+  border-color: var(--danger-hover);
+
+  outline: none;
+}
+
+button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+/* =========================================================
+   COUNTY CARDS
+   ========================================================= */
+
+/*
+  renderCards() positions the whole card container at:
+  top: 91%
+
+  Each .card-slot gets:
+  left: 3.5 + index * 31.5 %
+  width: 30%
+
+  So these styles keep the cards in the same location.
+*/
+
+.card-container {
+  position: absolute;
+
+  left: 0;
+  width: 100%;
+
+  z-index: 5;
+
+  pointer-events: none;
+}
+
+/* One card and everything attached to it */
+.card-slot {
+  position: absolute;
+  top: 0;
+}
+
+/* County card image */
+.card {
+  position: relative;
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Points badge attached to card */
+.points-badge {
+  position: absolute;
+
+  top: 1%;
+  right: 6%;
+
+  width: 22%;
+
+  z-index: 10;
+
+  pointer-events: none;
+}
+
+.points {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Number placed directly on the point plaque */
+.points-text {
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding-bottom: 4%;
+
+  color: #f7eed8;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(12px, 2vw, 20px);
+  font-weight: 700;
+
+  line-height: 1;
+
+  text-align: center;
+
+  text-shadow:
+    0 1px 1px rgba(0, 0, 0, .5),
+    0 2px 3px rgba(0, 0, 0, .25);
+
+  pointer-events: none;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  body {
+    padding: 1.2rem .65rem 2.5rem;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  .modal {
+    width: 96vw;
+    max-height: 92vh;
+  }
+
+  .modal-body {
+    padding: 1rem;
+    max-height: 70vh;
+  }
+
+  .help-sheet h3 span {
+    display: block;
+    margin-top: .15rem;
+  }
+
+  .points-badge {
+    width: 24%;
+    top: -3%;
+    right: -4%;
+  }
+
+  .points-text {
+    font-size: clamp(10px, 3vw, 20px);
+  }
+}
