@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<h1>Châteauma</h1>
+<div id="Title"><h1>Châteauma</h1></div>
 <div id="app"></div>
 <dialog id="help-dialog" class="modal help-dialog" aria-labelledby="help-title">
   <div class="modal-header">
@@ -110,17 +110,29 @@ const app = document.getElementById("app");
 const helpDialog = document.getElementById("help-dialog");
 const resetDialog = document.getElementById("reset-dialog");
 const confirmReset = document.getElementById("confirm-reset");
-let state = { board: null, clicks: [], difficulty: null };
+let state = { board: null, clicks: [], difficulty: null, selectedModifiers: [], gameStarted: false };
 async function api(path, body) {
   const r = await fetch("/api/" + path, body === undefined ? {} : {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   const s = await r.json();
-  if (path === "board" || path === "click") {
-    s.difficulty = state.difficulty;
-    if (path === "click") s.board = state.board;
-    return { ...state, ...s };
-  }
+  if (!r.ok) throw new Error(s.error || `Request failed (${r.status})`);
   return s;
+}
+async function saveSetup(changes) {
+  state = await api("setup", changes);
+  render();
+}
+function showError(error) {
+  console.error(error);
+  alert("Could not save progress. Please try again.");
+}
+function addBackButton() {
+  const back = document.createElement("button");
+  back.type = "button";
+  back.className = "secondary setup-back";
+  back.textContent = "← Back to difficulty selection";
+  back.onclick = () => saveSetup({ difficulty: null, selectedModifiers: [] }).catch(showError);
+  app.appendChild(back);
 }
 function render() {
   app.innerHTML = "";
@@ -172,23 +184,43 @@ function renderGameStart() {
     </div>
   `;
 
-  document.getElementById("start-game").onclick = () => {
-    state.gameStarted = true;
-    render();
+  const back = document.createElement("button");
+  back.type = "button";
+  back.className = "secondary setup-back";
+  back.textContent = state.difficulty === "Gateway"
+    ? "← Back to difficulty selection"
+    : "← Back to modifier selection";
+  back.onclick = async () => {
+    try {
+      state = await api("back-to-setup", {});
+      render();
+    } catch (error) { showError(error); }
   };
+  app.querySelector(".game-start-screen").appendChild(back);
+
+  document.getElementById("start-game").onclick = () => saveSetup({ gameStarted: true }).catch(showError);
 }
 
 function renderDifficulty() {
+  const pointsDiv = document.getElementById("points");
+  if (pointsDiv) {
+    pointsDiv.remove();
+  }
+
   app.innerHTML = `<h2>Choose difficulty level:</h2>
     <button data-d="Gateway">Gateway (No Modifiers)</button>
     <button data-d="Intermediate">Intermediate (1 Modifier)</button>
     <button data-d="Advanced">Advanced (2+ Modifiers)</button>`;
-  app.querySelectorAll("button").forEach((btn) => btn.onclick = async () => {
-    state.difficulty = btn.dataset.d;
-    if (state.difficulty === "Gateway") {
-      state = await api("board", { board: "standard", firstPlayer: "player", modifier: null, difficulty: state.difficulty });
-    }
-    render();
+  app.querySelectorAll("button[data-d]").forEach((btn) => btn.onclick = async () => {
+    try {
+      const difficulty = btn.dataset.d;
+      if (difficulty === "Gateway") {
+        state = await api("board", { board: "standard", firstPlayer: "player", modifier: null, difficulty });
+        render();
+      } else {
+        await saveSetup({ difficulty, selectedModifiers: [] });
+      }
+    } catch (error) { showError(error); }
   });
 }
 function renderQuestion() {
@@ -198,71 +230,68 @@ function renderQuestion() {
       <button data-m="B">B: Use Duchy board 36 place 5 normal tiles on B spaces (the Châteauma requires less tiles to claim the bonus and the mine generates 1 silver)</button>
       <button data-m="C">C: The Châteauma is the first player</button>
       <button data-m="D">D: We'll see when we get there.</button>`;
-    app.querySelectorAll("button").forEach((btn) => {
+    addBackButton();
+    app.querySelectorAll("button[data-m]").forEach((btn) => {
       btn.onclick = async () => {
-        let board;
-        let firstPlayer;
-        if (btn.dataset.m === "C") {
-          board = "standard";
-          firstPlayer = "chateauma";
-        }
-        else {
-          board = "advanced";
-          firstPlayer = "player";
-        }
-        state = await api("board", { board: board, firstPlayer: firstPlayer, modifier: btn.dataset.m, difficulty: state.difficulty });
-        render();
+        const modifier = btn.dataset.m;
+        try {
+          state = await api("board", {
+            board: modifier === "C" ? "standard" : "advanced",
+            firstPlayer: modifier === "C" ? "chateauma" : "player",
+            modifier, difficulty: state.difficulty
+          });
+          render();
+        } catch (error) { showError(error); }
       };
     });
     return;
   }
   if (state.difficulty === "Advanced") {
-    const selectedModifiers = new Set();
+    const selectedModifiers = new Set(state.selectedModifiers || []);
     app.innerHTML = `
       <h2>Choose your modifiers</h2>
-      <p>Select at least 2 modifiers.</p>
-      <button data-m="A">
-        A: Use Duchy board 36 place 5 black depot tiles on A spaces
-      </button>
-      <button data-m="B">
-        B: Use Duchy board 36 place 5 normal tiles on B spaces
-      </button>
-      <button data-m="C">
-        C: The Châteauma is the first player
-      </button>
-      <button data-m="D">
-        D: We'll see when we get there.
-      </button>
-      <br><br>
-      <button id="confirmModifiers" disabled>
-        Continue
-      </button>
+      <p class="modifier-instruction">Select at least 2 modifiers.</p>
+      <button data-m="A">A: Use Duchy board 36 place 5 black depot tiles on A spaces</button>
+      <button data-m="B">B: Use Duchy board 36 place 5 normal tiles on B spaces</button>
+      <button data-m="C">C: The Châteauma is the first player</button>
+      <button data-m="D">D: We'll see when we get there.</button>
+      <button id="confirmModifiers" ${selectedModifiers.size < 2 ? "disabled" : ""}>Continue</button>
     `;
+    addBackButton();
     const modifierButtons = app.querySelectorAll("button[data-m]");
     const confirmButton = app.querySelector("#confirmModifiers");
     modifierButtons.forEach((btn) => {
-      btn.onclick = () => {
-        const modifier = btn.dataset.m;
-        if (selectedModifiers.has(modifier)) {
-          selectedModifiers.delete(modifier);
-          btn.classList.remove("selected");
-        } else {
-          selectedModifiers.add(modifier);
-          btn.classList.add("selected");
-        }
-        btn.setAttribute("aria-pressed", String(selectedModifiers.has(modifier)));
-        confirmButton.disabled = selectedModifiers.size < 2;
+      const modifier = btn.dataset.m;
+      btn.classList.toggle("selected", selectedModifiers.has(modifier));
+      btn.setAttribute("aria-pressed", String(selectedModifiers.has(modifier)));
+      btn.onclick = async () => {
+        const newSelection = new Set(selectedModifiers);
+        if (newSelection.has(modifier)) newSelection.delete(modifier);
+        else newSelection.add(modifier);
+        try {
+          state = await api("setup", { selectedModifiers: Array.from(newSelection) });
+          selectedModifiers.clear();
+          (state.selectedModifiers || []).forEach(m => selectedModifiers.add(m));
+          modifierButtons.forEach(button => {
+            const pressed = selectedModifiers.has(button.dataset.m);
+            button.classList.toggle("selected", pressed);
+            button.setAttribute("aria-pressed", String(pressed));
+          });
+          confirmButton.disabled = selectedModifiers.size < 2;
+        } catch (error) { showError(error); }
       };
     });
     confirmButton.onclick = async () => {
       if (selectedModifiers.size < 2) return;
-      state = await api("board", {
-        board: "advanced",
-        firstPlayer: selectedModifiers.has("C") ? "chateauma" : "player",
-        modifier: Array.from(selectedModifiers).join(","),
-        difficulty: state.difficulty
-      });
-      render();
+      try {
+        state = await api("board", {
+          board: "advanced",
+          firstPlayer: selectedModifiers.has("C") ? "chateauma" : "player",
+          modifier: Array.from(selectedModifiers).join(","),
+          difficulty: state.difficulty
+        });
+        render();
+      } catch (error) { showError(error); }
     };
     return;
   }
@@ -317,6 +346,12 @@ function renderCards(wrap) {
 }
 
 function renderBoard() {
+  const titleDiv = document.getElementById("Title");
+  titleDiv.querySelector("#points")?.remove();
+  const pointsDiv = document.createElement("div");
+  pointsDiv.id = "points";
+  pointsDiv.textContent = "Points: " + state.points;
+  titleDiv.appendChild(pointsDiv);
   const wrap = document.createElement("div");
   wrap.id = "wrap";
   const img = document.createElement("img");

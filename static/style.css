@@ -604,3 +604,35 @@ button:disabled {
     font-size: clamp(10px, 3vw, 20px);
   }
 }
+/* Modifier selection and setup navigation */
+#app .modifier-instruction {
+  text-align: center;
+  margin: 0 auto 1.25rem;
+  color: var(--muted);
+}
+#app button.secondary.setup-back {
+  display: block;
+  width: min(100%, 360px);
+  margin: 1.25rem auto 0;
+  text-align: center;
+}
+
+/* Center the ready screen, including the instruction and navigation. */
+.game-start-screen {
+  width: min(100%, 500px);
+  margin: 2rem auto;
+  text-align: center;
+}
+.game-start-screen h2 {
+  margin: 0 0 1.25rem;
+  font-size: 1.35rem;
+}
+.game-start-card {
+  margin: 0 auto;
+  padding: 1.25rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.game-start-icon { font-size: 2.5rem; }
+.game-start-note { color: var(--muted); }

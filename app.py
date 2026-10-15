@@ -34,7 +34,7 @@ def _save() -> None:
 
 
 def _new_state() -> dict:
-    return {"board": None, "clicks": [], "silver": 1, "goods": [1, 1, 1, 1, 1, 1], "difficulty": None, "firstPlayer": None, "modifier": None}
+    return {"board": None, "clicks": [], "silver": 1, "goods": [1, 1, 1, 1, 1, 1], "difficulty": None, "firstPlayer": None, "modifier": None, "points": 0, "gameStarted": False, "selectedModifiers": []}
 
 
 def _sid() -> tuple[str, bool]:
@@ -65,6 +65,57 @@ def get_state():
         return _respond(sid, is_new)
 
 
+@app.post("/api/setup")
+def update_setup():
+    sid, is_new = _sid()
+    data = request.get_json(silent=True) or {}
+    with _lock:
+        state = db.setdefault(sid, _new_state())
+        if state.get("board"):
+            if set(data) != {"gameStarted"} or data["gameStarted"] is not True:
+                return _respond(sid, is_new, 400, {"error": "game already configured"})
+            state["gameStarted"] = True
+        else:
+            if "gameStarted" in data:
+                return _respond(sid, is_new, 400, {"error": "no board selected"})
+            if "difficulty" in data:
+                difficulty = data["difficulty"]
+                if difficulty not in (None, "Intermediate", "Advanced"):
+                    return _respond(sid, is_new, 400, {"error": "invalid difficulty"})
+                state["difficulty"] = difficulty
+                state["selectedModifiers"] = []
+            if "selectedModifiers" in data:
+                modifiers = data["selectedModifiers"]
+                if (not isinstance(modifiers, list) or
+                    any(m not in ("A", "B", "C", "D") for m in modifiers) or
+                    len(modifiers) != len(set(modifiers)) or
+                    (modifiers and state.get("difficulty") != "Advanced")):
+                    return _respond(sid, is_new, 400, {"error": "invalid modifiers"})
+                state["selectedModifiers"] = modifiers
+        _save()
+        return _respond(sid, is_new)
+
+
+@app.post("/api/back-to-setup")
+def back_to_setup():
+    """Leave Ready to Begin without discarding the chosen difficulty/modifiers."""
+    sid, is_new = _sid()
+    with _lock:
+        state = db.setdefault(sid, _new_state())
+        if not state.get("board") or state.get("gameStarted"):
+            return _respond(sid, is_new, 400, {"error": "not on Ready to Begin"})
+        difficulty = state.get("difficulty")
+        chosen = state.get("modifier") or ""
+        modifiers = [m for m in chosen.split(",") if m in ("A", "B", "C", "D")]
+        db[sid] = _new_state()
+        if difficulty in ("Intermediate", "Advanced"):
+            db[sid]["difficulty"] = difficulty
+            if difficulty == "Advanced":
+                db[sid]["selectedModifiers"] = modifiers
+        _save()
+        return _respond(sid, is_new)
+
+
 @app.post("/api/board")
 def set_board():
     sid, is_new = _sid()
@@ -82,6 +133,8 @@ def set_board():
         state["firstPlayer"] = starting_player
         state["modifier"] = modifier
         state["difficulty"] = difficulty
+        state["gameStarted"] = False
+        state["selectedModifiers"] = []
         state["cards"] = get_cards(difficulty)
         _save()
         return _respond(sid, is_new)

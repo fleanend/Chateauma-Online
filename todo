@@ -1,5 +1,6 @@
-add setup rules as text
-handle points
+handle points (center it, use image, add horizontal bar over main image?)
+    - centered monocolored bar as long as the board
+    - add point image with numbers on top
 add green hexes
  - create green placeholder
 create system to add hex to county
