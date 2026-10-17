@@ -1,6 +1,4 @@
-handle points (center it, use image, add horizontal bar over main image?)
-    - centered monocolored bar as long as the board
-    - add point image with numbers on top
+debug options on options (add point, change card)
 add green hexes
  - create green placeholder
 create system to add hex to county

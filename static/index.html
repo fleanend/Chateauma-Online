@@ -202,10 +202,7 @@ function renderGameStart() {
 }
 
 function renderDifficulty() {
-  const pointsDiv = document.getElementById("points");
-  if (pointsDiv) {
-    pointsDiv.remove();
-  }
+  togglePoints("disable");
 
   app.innerHTML = `<h2>Choose difficulty level:</h2>
     <button data-d="Gateway">Gateway (No Modifiers)</button>
@@ -345,13 +342,42 @@ function renderCards(wrap) {
   wrap.appendChild(cardContainer);
 }
 
+function togglePoints(action) {
+  if (action === "disable") {
+    const pointsDiv = document.getElementById("points");
+    if (pointsDiv) {
+      pointsDiv.remove();
+    }
+  }
+  else if (action === "enable") {
+    const titleDiv = document.getElementById("Title");
+    titleDiv.querySelector("#points")?.remove();
+    const pointsDiv = document.createElement("div");
+    const banner = document.createElement("img");
+    banner.src = `/static/boards/upper side.png`;
+    banner.id = "banner";
+    banner.alt = "Points Banner";
+    pointsDiv.id = "points";
+    pointsDiv.appendChild(banner);
+    const textOnBanner = document.createElement("div");
+    textOnBanner.id = "textOnBanner";
+    textOnBanner.textContent = `Points: `;
+    const actualPoints = document.createElement("span");
+    actualPoints.id = "actualPoints";
+    actualPoints.textContent = state.points;
+    const pointsBG = document.createElement("img");
+    pointsBG.src = `/static/cards/points.png`;
+    pointsBG.id = "pointsBG";
+    textOnBanner.appendChild(pointsBG);
+    textOnBanner.appendChild(actualPoints);
+    pointsDiv.appendChild(textOnBanner);
+    titleDiv.appendChild(pointsDiv);
+  }
+  
+}
+
 function renderBoard() {
-  const titleDiv = document.getElementById("Title");
-  titleDiv.querySelector("#points")?.remove();
-  const pointsDiv = document.createElement("div");
-  pointsDiv.id = "points";
-  pointsDiv.textContent = "Points: " + state.points;
-  titleDiv.appendChild(pointsDiv);
+  togglePoints("enable");
   const wrap = document.createElement("div");
   wrap.id = "wrap";
   const img = document.createElement("img");
