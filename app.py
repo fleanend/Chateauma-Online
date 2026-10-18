@@ -194,6 +194,38 @@ def reset():
         _save()
         return _respond(sid, is_new)
 
+@app.post("/api/add-point")
+def add_point():
+    sid, is_new = _sid()
+    with _lock:
+        state = db.setdefault(sid, _new_state())
+        state["points"] += 1
+        _save()
+        return _respond(sid, is_new)
+
+@app.post("/api/remove-point")
+def remove_point():
+    sid, is_new = _sid()
+    with _lock:
+        state = db.setdefault(sid, _new_state())
+        if state["points"] > 0:
+            state["points"] -= 1
+        _save()
+        return _respond(sid, is_new)
+
+@app.post("/api/change-card")
+def change_card():
+    sid, is_new = _sid()
+    data = request.get_json(silent=True) or {}
+    index = data.get("index", -1)
+    with _lock:
+        state = db.setdefault(sid, _new_state())
+        if 0 <= index < len(state["cards"]):
+            cards = get_cards(state["difficulty"], replace="card1" if index == 0 else "card2")
+            state["cards"][index] = cards[0] if index == 0 else cards[1]
+        _save()
+        return _respond(sid, is_new)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

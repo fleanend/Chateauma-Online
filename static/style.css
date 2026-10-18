@@ -573,7 +573,7 @@ button:disabled {
 #Title {
   max-width: 1000px;
   margin: 0 auto;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: Georgia, "Times New Roman", serif;
 }
 
 #points {
@@ -600,7 +600,7 @@ button:disabled {
 
 #pointsBG {
     position: absolute;
-    transform: translate(0%, -22%);
+    transform: translate(0%, -26%);
     width: 100%;
     height: auto;
     z-index: 11;
@@ -608,10 +608,14 @@ button:disabled {
 
 #actualPoints {
     position: absolute;
-    transform: translate(230%, 0%);
+
+    top: 0%;
+    left: 135%;
+
     z-index: 12;
     color: #f7eed8;
     font-weight: bold;
+    white-space: nowrap;
 }
 
 #textOnBanner {

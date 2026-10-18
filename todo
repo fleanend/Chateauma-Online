@@ -1,8 +1,18 @@
-debug options on options (add point, change card)
 add green hexes
  - create green placeholder
 create system to add hex to county
+fix cards to have same positions
 add castle to set up
 check rules
-decide whether I need to differentiate hexes
 define system to handle turn
+    - your turn, my turn (await die values)
+    - instructions to get things from the board
+    - confirmation of what was got
+    - bonus and completions if any
+
+-cicd
+- publish with gateway
+- test with a game gateway
+
+-add other difficulties and effects
+-publish again and test

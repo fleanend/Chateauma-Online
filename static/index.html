@@ -412,6 +412,10 @@ function renderBoard() {
   menu.hidden = true;
   menu.innerHTML = `
     <button type="button" role="menuitem" data-action="help">Help Sheet</button>
+    <button type="button" role="menuitem" data-action="add-point">Add Point</button>
+    <button type="button" role="menuitem" data-action="remove-point">Remove Point</button>
+    <button type="button" role="menuitem" data-action="change-first-card">Change First Card</button>
+    <button type="button" role="menuitem" data-action="change-second-card">Change Second Card</button>
     <div class="menu-separator" role="separator"></div>
     <button type="button" role="menuitem" data-action="reset" class="menu-danger">Start Over</button>`;
   function closeMenu() {
@@ -433,6 +437,26 @@ function renderBoard() {
   menu.querySelector('[data-action="reset"]').onclick = () => {
     closeMenu();
     resetDialog.showModal();
+  };
+  menu.querySelector('[data-action="add-point"]').onclick = async () => {
+    closeMenu();
+    state = await api("add-point", {});
+    render();
+  };
+  menu.querySelector('[data-action="remove-point"]').onclick = async () => {
+    closeMenu();
+    state = await api("remove-point", {});
+    render();
+  };
+  menu.querySelector('[data-action="change-first-card"]').onclick = async () => {
+    closeMenu();
+    state = await api("change-card", { index: 0 });
+    render();
+  };
+  menu.querySelector('[data-action="change-second-card"]').onclick = async () => {
+    closeMenu();
+    state = await api("change-card", { index: 1 });
+    render();
   };
   options.append(optionsButton, menu);
   app.append(wrap, options);
